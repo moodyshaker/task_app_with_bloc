@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:flutter_bloc_pattern/src/models/task_item.dart';
+import 'package:flutter_bloc_pattern/src/models/task_model.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -9,6 +9,7 @@ class DatabaseHandler {
   static const String id = '_id';
   static const String title = 'title';
   static const String content = 'content';
+  static const String image = 'image';
   static const String date = 'date';
   static const int version = 1;
   static Database _db;
@@ -37,13 +38,14 @@ class DatabaseHandler {
       CREATE TABLE $table_name(
       $id INTEGER PRIMARY KEY AUTOINCREMENT,
       $title TEXT NOT NULL,
+      $image TEXT,
       $content TEXT NOT NULL,
       $date TEXT NOT NULL)
     """,
     );
   }
 
-  Future<void> insert(TaskItem item) async {
+  Future<void> insert(Task item) async {
     await _db.insert(
       table_name,
       item.toMap(),
@@ -51,7 +53,7 @@ class DatabaseHandler {
     );
   }
 
-  Future<void> update(TaskItem item) async {
+  Future<void> update(Task item) async {
     await _db.update(
       table_name,
       item.toMap(),
@@ -62,7 +64,7 @@ class DatabaseHandler {
   }
 
   Future<void> deleteAll() async {
-    _db.rawDelete('DELETE FROM $table_name');
+    await _db.rawDelete('DELETE FROM $table_name');
   }
 
   Future<void> delete(int id) async {
@@ -73,11 +75,11 @@ class DatabaseHandler {
     );
   }
 
-  Future<List<TaskItem>> getData() async {
+  Future<List<Task>> getData() async {
     List<Map<String, dynamic>> data = await _db.query(
       table_name,
     );
-    return data.map((map) => TaskItem.fromMap(map)).toList();
+    return data.map((map) => Task.fromMap(map)).toList();
 
   }
 
